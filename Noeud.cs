@@ -9,10 +9,15 @@ namespace Projet_PSI
     internal class Noeud
     {
         public int Id { get; }
-        public Noeud(int id)
+        public int longitude;
+        public int latitude;
+        public Noeud(int id, int Long, int Lat)
         {
-            Id = id;
-
+            this.Id = id;
+            this.longitude = Long;
+            this.latitude = Lat;
+            
         }
+        
     }
 }
