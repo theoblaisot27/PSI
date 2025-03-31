@@ -47,12 +47,14 @@ namespace projet_algo_2
             listeAdjacence = new Dictionary<int, List<int>>();
             liens = new List<Lien>();
             matriceAdjacence = new int[nombreNoeuds + 1, nombreNoeuds + 1];
+            string fichier = "soc-karate.mtx";
 
             for (int i = 1; i <= nombreNoeuds; i++)
             {
                 noeuds.Add(i, new Noeud(i));
                 listeAdjacence.Add(i, new List<int>());
             }
+            LireFichier(fichier);
         }
 
         /// <summary>
@@ -61,6 +63,7 @@ namespace projet_algo_2
         /// <param name="fichier">Chemin du fichier à lire.</param>
         public void LireFichier(string fichier)
         {
+            Console.WriteLine("caca");
             try
             {
                 using (StreamReader flux = new StreamReader(fichier))
@@ -75,6 +78,7 @@ namespace projet_algo_2
                         {
                             string[] valeurs = ligne.Split(' ');
                             int noeud1 = int.Parse(valeurs[0]);
+                            
                             int noeud2 = int.Parse(valeurs[1]);
 
                             AjouterLien(noeud1, noeud2);
