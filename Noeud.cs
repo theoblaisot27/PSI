@@ -6,18 +6,19 @@ using System.Threading.Tasks;
 
 namespace Projet_PSI
 {
-    internal class Noeud
+    internal class Noeud<T>
     {
         public int Id { get; }
-        public int longitude { get; }
-        public int latitude { get; }
-        public Noeud(int id, int Long, int Lat)
+        public double Longitude { get; }
+        public double Latitude { get; }
+        public T Donnees { get; set; } 
+
+        public Noeud(int id, double longitude, double latitude, T donnees)
         {
-            this.Id = id;
-            this.longitude = Long;
-            this.latitude = Lat;
-            
+            Id = id;
+            Longitude = longitude;
+            Latitude = latitude;
+            Donnees = donnees;
         }
-        
     }
 }
