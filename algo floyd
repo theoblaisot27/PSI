@@ -1,0 +1,103 @@
+public void FloydWarshall()
+        {
+            int n = _noeuds.Count;
+
+            // Créer une matrice des distances
+            double[,] dist = new double[n + 1, n + 1];
+            int[,] pred = new int[n + 1, n + 1];
+
+            // Initialiser la matrice des distances et des prédécesseurs
+            foreach (var node in _noeuds.Keys)
+            {
+                for (int i = 1; i <= n; i++)
+                {
+                    dist[node, i] = double.MaxValue;
+                    pred[node, i] = -1;
+                }
+                dist[node, node] = 0; // La distance d'un nœud à lui-même est 0
+            }
+
+            foreach (var arrete in _poids)
+            {
+                int u = arrete.Key.Item1;
+                int v = arrete.Key.Item2;
+                double poids = arrete.Value;
+                dist[u, v] = poids;
+                dist[v, u] = poids;
+                pred[u, v] = u;
+                pred[v, u] = v;
+            }
+
+            for (int k = 1; k <= n; k++)
+            {
+                for (int i = 1; i <= n; i++)
+                {
+                    for (int j = 1; j <= n; j++)
+                    {
+                        if (dist[i, j] > dist[i, k] + dist[k, j])
+                        {
+                            dist[i, j] = dist[i, k] + dist[k, j];
+                            pred[i, j] = pred[k, j];
+                        }
+                    }
+                }
+            }
+
+            AfficherResultatsFloydWarshall(dist, pred);
+        }
+
+        private void AfficherResultatsFloydWarshall(double[,] dist, int[,] pred)
+        {
+            int n = _noeuds.Count;
+
+            Console.WriteLine("Matrice des plus courts chemins :");
+            for (int i = 1; i <= n; i++)
+            {
+                for (int j = 1; j <= n; j++)
+                {
+                    if (dist[i, j] == double.MaxValue)
+                    {
+                        Console.Write("INF ".PadLeft(8));
+                    }
+                    else
+                    {
+                        Console.Write(dist[i, j].ToString("F2").PadLeft(8));
+                    }
+                }
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("\nChemin le plus court de 1 à 3 :");
+            int source = 1;
+            int destination = 3;
+            List<int> chemin = ReconstructPath(pred, source, destination);
+
+            foreach (int node in chemin)
+            {
+                Console.WriteLine($"Station {node}");
+            }
+        }
+
+        private List<int> ReconstructPath(int[,] pred, int source, int destination)
+        {
+            List<int> path = new List<int>();
+            int currentNode = destination;
+
+            while (currentNode != source)
+            {
+                if (currentNode == -1)
+                {
+                    Console.WriteLine("Aucun chemin trouvé.");
+                    return new List<int>(); // Retourne une liste vide si aucun chemin
+                }
+
+                path.Add(currentNode);
+                currentNode = pred[source, currentNode];
+            }
+
+            path.Add(source);
+            path.Reverse();
+            return path;
+        }
+    }
+}
