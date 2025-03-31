@@ -1,0 +1,69 @@
+public List<int> BellmanFord(int source, int destination)
+        {
+            Dictionary<int, double> distances = new Dictionary<int, double>();
+            Dictionary<int, int> previousNodes = new Dictionary<int, int>();
+
+          
+            foreach (int node in _noeuds.Keys)
+            {
+                distances[node] = double.MaxValue;
+                previousNodes[node] = -1;
+            }
+            distances[source] = 0;
+
+        
+            for (int i = 1; i < _noeuds.Count; i++)
+            {
+                foreach (var arrete in _poids)
+                {
+                    int u = arrete.Key.Item1;
+                    int v = arrete.Key.Item2;
+                    double poids = arrete.Value;
+
+                    if (distances[u] != double.MaxValue && distances[u] + poids < distances[v])
+                    {
+                        distances[v] = distances[u] + poids;
+                        previousNodes[v] = u;
+                    }
+                }
+            }
+
+            foreach (var arrete in _poids)
+            {
+                int u = arrete.Key.Item1;
+                int v = arrete.Key.Item2;
+                double poids = arrete.Value;
+
+                if (distances[u] != double.MaxValue && distances[u] + poids < distances[v])
+                {
+                    Console.WriteLine("Le graphe contient un cycle de poids négatif.");
+                    return null;
+                }
+            }
+
+            return ReconstructPath(previousNodes, source, destination);
+        }
+
+        private List<int> ReconstructPath(Dictionary<int, int> previousNodes, int source, int destination)
+        {
+            List<int> path = new List<int>();
+            int currentNode = destination;
+
+            while (currentNode != source && currentNode != -1)
+            {
+                path.Add(currentNode);
+                currentNode = previousNodes[currentNode];
+            }
+
+            if (currentNode == -1)
+            {
+                Console.WriteLine("Aucun chemin trouvé.");
+                return null;
+            }
+
+            path.Add(source);
+            path.Reverse();
+            return path;
+        }
+    }
+}
