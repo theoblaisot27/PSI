@@ -11,7 +11,7 @@ namespace Projet_PSI
 
         public Noeud Noeud1 { get; }
         public Noeud Noeud2 { get; }
-        public int distance { get; } //distance en Km
+        public double distance { get; } //distance en Km
 
         public Lien(Noeud n1, Noeud n2)
         {
@@ -20,9 +20,9 @@ namespace Projet_PSI
             this.distance = distance(n1, n2);
         }
 
-        static int distance(Noeud n1, Noeud n2)
+        static double distance(Noeud n1, Noeud n2)
         {
-            int n;
+            double n;
             int Dlat = n2.Latitude - n1.Latitude;
             if (Dlat <0)
             {
