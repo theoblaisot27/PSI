@@ -1,0 +1,73 @@
+public List<int> Dijkstra(int source, int destination)
+        {
+            Dictionary<int, double> distances = new Dictionary<int, double>();
+            Dictionary<int, int> previousNodes = new Dictionary<int, int>();
+            HashSet<int> unvisitedNodes = new HashSet<int>(_noeuds.Keys);
+
+            foreach (int node in _noeuds.Keys)
+            {
+                distances[node] = double.MaxValue;
+            }
+
+            distances[source] = 0;
+
+            while (unvisitedNodes.Count > 0)
+            {
+                int currentNode = GetNodeWithLowestDistance(distances, unvisitedNodes);
+
+                if (currentNode == destination)
+                {
+                    break;
+                }
+
+                unvisitedNodes.Remove(currentNode);
+
+                foreach (int neighbor in _listeAdjacence[currentNode])
+                {
+                    double tentativeDistance = distances[currentNode] + _poids[(currentNode, neighbor)];
+
+                    if (tentativeDistance < distances[neighbor])
+                    {
+                        distances[neighbor] = tentativeDistance;
+                        previousNodes[neighbor] = currentNode;
+                    }
+                }
+            }
+
+            return ReconstructPath(previousNodes, source, destination);
+        }
+
+        private int GetNodeWithLowestDistance(Dictionary<int, double> distances, HashSet<int> unvisitedNodes)
+        {
+            double lowestDistance = double.MaxValue;
+            int nodeWithLowestDistance = -1;
+
+            foreach (int node in unvisitedNodes)
+            {
+                if (distances[node] < lowestDistance)
+                {
+                    lowestDistance = distances[node];
+                    nodeWithLowestDistance = node;
+                }
+            }
+
+            return nodeWithLowestDistance;
+        }
+
+        private List<int> ReconstructPath(Dictionary<int, int> previousNodes, int source, int destination)
+        {
+            List<int> path = new List<int>();
+            int currentNode = destination;
+
+            while (currentNode != source)
+            {
+                path.Add(currentNode);
+                currentNode = previousNodes[currentNode];
+            }
+
+            path.Add(source);
+            path.Reverse();
+            return path;
+        }
+    }
+}
