@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace projet_algo_2
+namespace projet_PSI
 {
     internal class Graph
     {
