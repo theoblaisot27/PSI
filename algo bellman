@@ -1,69 +1,80 @@
-public List<int> BellmanFord(int source, int destination)
+public List<T> BellmanFord(T source, T destination)
+    {
+        // Initialiser les distances de tous les nœuds à l'infini
+        var distances = new Dictionary<T, double>();
+        var predecessors = new Dictionary<T, T>();
+        var path = new List<T>();
+
+        // Initialiser toutes les distances à l'infini et les prédécesseurs à null
+        foreach (var noeud in noeuds.Keys)
         {
-            Dictionary<int, double> distances = new Dictionary<int, double>();
-            Dictionary<int, int> previousNodes = new Dictionary<int, int>();
-
-          
-            foreach (int node in _noeuds.Keys)
-            {
-                distances[node] = double.MaxValue;
-                previousNodes[node] = -1;
-            }
-            distances[source] = 0;
-
-        
-            for (int i = 1; i < _noeuds.Count; i++)
-            {
-                foreach (var arrete in _poids)
-                {
-                    int u = arrete.Key.Item1;
-                    int v = arrete.Key.Item2;
-                    double poids = arrete.Value;
-
-                    if (distances[u] != double.MaxValue && distances[u] + poids < distances[v])
-                    {
-                        distances[v] = distances[u] + poids;
-                        previousNodes[v] = u;
-                    }
-                }
-            }
-
-            foreach (var arrete in _poids)
-            {
-                int u = arrete.Key.Item1;
-                int v = arrete.Key.Item2;
-                double poids = arrete.Value;
-
-                if (distances[u] != double.MaxValue && distances[u] + poids < distances[v])
-                {
-                    Console.WriteLine("Le graphe contient un cycle de poids négatif.");
-                    return null;
-                }
-            }
-
-            return ReconstructPath(previousNodes, source, destination);
+            distances[noeud] = double.MaxValue;
+            predecessors[noeud] = default(T);
         }
 
-        private List<int> ReconstructPath(Dictionary<int, int> previousNodes, int source, int destination)
+        // La distance du nœud source est 0
+        distances[source] = 0;
+
+        // Détail des itérations (relaxation des arêtes)
+        for (int i = 1; i < noeuds.Count; i++) // Effectuer V - 1 itérations
         {
-            List<int> path = new List<int>();
-            int currentNode = destination;
-
-            while (currentNode != source && currentNode != -1)
+            foreach (var lien in liens)
             {
-                path.Add(currentNode);
-                currentNode = previousNodes[currentNode];
-            }
+                T n1 = lien.Noeud1.Donnees;
+                T n2 = lien.Noeud2.Donnees;
+                double weight = lien.Distance;
 
-            if (currentNode == -1)
-            {
-                Console.WriteLine("Aucun chemin trouvé.");
-                return null;
-            }
+                // Relaxation de l'arête (n1, n2)
+                if (distances[n1] + weight < distances[n2])
+                {
+                    distances[n2] = distances[n1] + weight;
+                    predecessors[n2] = n1;
+                }
 
-            path.Add(source);
-            path.Reverse();
-            return path;
+                // Relaxation de l'arête (n2, n1), car le graphe est non orienté
+                if (distances[n2] + weight < distances[n1])
+                {
+                    distances[n1] = distances[n2] + weight;
+                    predecessors[n1] = n2;
+                }
+            }
         }
+
+        // Vérification des cycles négatifs
+        foreach (var lien in liens)
+        {
+            T n1 = lien.Noeud1.Donnees;
+            T n2 = lien.Noeud2.Donnees;
+            double weight = lien.Distance;
+
+            if (distances[n1] + weight < distances[n2])
+            {
+                Console.WriteLine("Le graphe contient un cycle négatif");
+                return new List<T>(); // Retourne une liste vide si un cycle négatif est détecté
+            }
+
+            if (distances[n2] + weight < distances[n1])
+            {
+                Console.WriteLine("Le graphe contient un cycle négatif");
+                return new List<T>(); // Retourne une liste vide si un cycle négatif est détecté
+            }
+        }
+
+        // Reconstruire le chemin à partir des prédécesseurs
+        if (distances[destination] == double.MaxValue)
+        {
+            Console.WriteLine("Aucun chemin trouvé vers la destination");
+            return new List<T>(); // Si la destination est inatteignable
+        }
+
+        // Reconstruire le chemin en remontant les prédécesseurs
+        T current = destination;
+        while (!EqualityComparer<T>.Default.Equals(current, default(T)))
+        {
+            path.Insert(0, current);
+            current = predecessors[current];
+        }
+
+        return path;
     }
 }
