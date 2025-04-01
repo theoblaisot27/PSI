@@ -39,7 +39,7 @@ public List<T> Dijkstra(T source, T destination)
             }
         }
 
-        return new List<T>(); // Aucun chemin trouvé
+        return new List<T>(); 
     }
 
     private List<T> ReconstructPath(Dictionary<T, T> predecessors, T destination)
