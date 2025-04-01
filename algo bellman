@@ -1,21 +1,19 @@
 public List<T> BellmanFord(T source, T destination)
     {
-        // Initialiser les distances de tous les nœuds à l'infini
+       
         var distances = new Dictionary<T, double>();
         var predecessors = new Dictionary<T, T>();
         var path = new List<T>();
 
-        // Initialiser toutes les distances à l'infini et les prédécesseurs à null
+        
         foreach (var noeud in noeuds.Keys)
         {
             distances[noeud] = double.MaxValue;
             predecessors[noeud] = default(T);
         }
 
-        // La distance du nœud source est 0
         distances[source] = 0;
 
-        // Détail des itérations (relaxation des arêtes)
         for (int i = 1; i < noeuds.Count; i++) // Effectuer V - 1 itérations
         {
             foreach (var lien in liens)
@@ -24,14 +22,12 @@ public List<T> BellmanFord(T source, T destination)
                 T n2 = lien.Noeud2.Donnees;
                 double weight = lien.Distance;
 
-                // Relaxation de l'arête (n1, n2)
                 if (distances[n1] + weight < distances[n2])
                 {
                     distances[n2] = distances[n1] + weight;
                     predecessors[n2] = n1;
                 }
 
-                // Relaxation de l'arête (n2, n1), car le graphe est non orienté
                 if (distances[n2] + weight < distances[n1])
                 {
                     distances[n1] = distances[n2] + weight;
@@ -40,7 +36,6 @@ public List<T> BellmanFord(T source, T destination)
             }
         }
 
-        // Vérification des cycles négatifs
         foreach (var lien in liens)
         {
             T n1 = lien.Noeud1.Donnees;
@@ -60,14 +55,12 @@ public List<T> BellmanFord(T source, T destination)
             }
         }
 
-        // Reconstruire le chemin à partir des prédécesseurs
         if (distances[destination] == double.MaxValue)
         {
             Console.WriteLine("Aucun chemin trouvé vers la destination");
             return new List<T>(); // Si la destination est inatteignable
         }
 
-        // Reconstruire le chemin en remontant les prédécesseurs
         T current = destination;
         while (!EqualityComparer<T>.Default.Equals(current, default(T)))
         {
