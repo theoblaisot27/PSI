@@ -1,73 +1,46 @@
-public List<int> Dijkstra(int source, int destination)
+public List<T> Dijkstra(T source, T destination)
+    {
+        // Initialiser les distances de tous les nœuds à l'infini
+        var distances = new Dictionary<T, double>();
+        var predecessors = new Dictionary<T, T>();  // Pour retracer le chemin
+        var priorityQueue = new SortedSet<T>(Comparer<T>.Create((x, y) => distances[x].CompareTo(distances[y])));
+        
+        foreach (var noeud in noeuds.Keys)
         {
-            Dictionary<int, double> distances = new Dictionary<int, double>();
-            Dictionary<int, int> previousNodes = new Dictionary<int, int>();
-            HashSet<int> unvisitedNodes = new HashSet<int>(_noeuds.Keys);
-
-            foreach (int node in _noeuds.Keys)
-            {
-                distances[node] = double.MaxValue;
-            }
-
-            distances[source] = 0;
-
-            while (unvisitedNodes.Count > 0)
-            {
-                int currentNode = GetNodeWithLowestDistance(distances, unvisitedNodes);
-
-                if (currentNode == destination)
-                {
-                    break;
-                }
-
-                unvisitedNodes.Remove(currentNode);
-
-                foreach (int neighbor in _listeAdjacence[currentNode])
-                {
-                    double tentativeDistance = distances[currentNode] + _poids[(currentNode, neighbor)];
-
-                    if (tentativeDistance < distances[neighbor])
-                    {
-                        distances[neighbor] = tentativeDistance;
-                        previousNodes[neighbor] = currentNode;
-                    }
-                }
-            }
-
-            return ReconstructPath(previousNodes, source, destination);
+            distances[noeud] = double.MaxValue;
+            predecessors[noeud] = default(T);
+            priorityQueue.Add(noeud);
         }
 
-        private int GetNodeWithLowestDistance(Dictionary<int, double> distances, HashSet<int> unvisitedNodes)
-        {
-            double lowestDistance = double.MaxValue;
-            int nodeWithLowestDistance = -1;
+        // La distance du nœud source est 0
+        distances[source] = 0;
 
-            foreach (int node in unvisitedNodes)
+        while (priorityQueue.Count > 0)
+        {
+            // Extraire le nœud avec la distance la plus courte
+            T currentNode = priorityQueue.Min;
+            priorityQueue.Remove(currentNode);
+
+            // Si le nœud destination est atteint, on reconstruit le chemin
+            if (EqualityComparer<T>.Default.Equals(currentNode, destination))
             {
-                if (distances[node] < lowestDistance)
+                return ReconstructPath(predecessors, destination);
+            }
+
+            // Mettre à jour les voisins
+            foreach (T voisin in listeAdjacence[currentNode])
+            {
+                double weight = CalculerDistance(noeuds[currentNode], noeuds[voisin]); // Calculer la distance entre les nœuds voisins
+                double alt = distances[currentNode] + weight;
+
+                if (alt < distances[voisin])
                 {
-                    lowestDistance = distances[node];
-                    nodeWithLowestDistance = node;
+                    distances[voisin] = alt;
+                    predecessors[voisin] = currentNode;
+
+                    // Mettre à jour la file de priorité (en supprimant puis réajoutant le nœud avec la nouvelle distance)
+                    priorityQueue.Remove(voisin);
+                    priorityQueue.Add(voisin);
                 }
             }
-
-            return nodeWithLowestDistance;
         }
-
-        private List<int> ReconstructPath(Dictionary<int, int> previousNodes, int source, int destination)
-        {
-            List<int> path = new List<int>();
-            int currentNode = destination;
-
-            while (currentNode != source)
-            {
-                path.Add(currentNode);
-                currentNode = previousNodes[currentNode];
-            }
-
-            path.Add(source);
-            path.Reverse();
-            return path;
-        }
-    }
-}
