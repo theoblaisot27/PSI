@@ -4,7 +4,6 @@
         double[,] dist = new double[n, n]; // Matrice de distances
         int[,] next = new int[n, n]; // Matrice pour reconstruire le chemin
 
-        // Initialisation des matrices de distance et de prédécesseur
         for (int i = 0; i < n; i++)
         {
             for (int j = 0; j < n; j++)
@@ -21,7 +20,6 @@
             }
         }
 
-        // Remplir la matrice avec les distances directes des arêtes
         foreach (var lien in liens)
         {
             T n1 = lien.Noeud1.Donnees;
@@ -37,7 +35,6 @@
             next[j, i] = i; // Le prédécesseur de i depuis j est i
         }
 
-        // Application de l'algorithme de Floyd-Warshall
         for (int k = 0; k < n; k++)
         {
             for (int i = 0; i < n; i++)
@@ -54,10 +51,9 @@
             }
         }
 
-        return dist; // Retourner la matrice des distances
+        return dist;
     }
 
-    // Méthode pour obtenir l'index du nœud dans la matrice
     private int GetNodeIndex(T noeud)
     {
         int index = 0;
@@ -72,7 +68,6 @@
         throw new Exception("Noeud introuvable");
     }
 
-    // Méthode pour reconstruire le chemin entre deux nœuds
     public List<T> ReconstructPath(int[,] next, T start, T end)
     {
         int startIndex = GetNodeIndex(start);
@@ -85,12 +80,11 @@
             return path;
         }
 
-        // Reconstruire le chemin
         T current = start;
         while (!EqualityComparer<T>.Default.Equals(current, end))
         {
             path.Add(current);
-            current = noeuds[GetNodeIndex(current)].Donnees; // Utiliser le tableau next pour se déplacer dans le chemin
+            current = noeuds[GetNodeIndex(current)].Donnees;
         }
 
         path.Add(end); // Ajouter la destination
