@@ -44,3 +44,21 @@ public List<T> Dijkstra(T source, T destination)
                 }
             }
         }
+
+        return new List<T>(); // Aucun chemin trouvé
+    }
+
+    // Méthode pour reconstruire le chemin à partir des prédécesseurs
+    private List<T> ReconstructPath(Dictionary<T, T> predecessors, T destination)
+    {
+        var path = new List<T>();
+        T current = destination;
+
+        while (!EqualityComparer<T>.Default.Equals(current, default(T)))
+        {
+            path.Insert(0, current);
+            current = predecessors[current];
+        }
+
+        return path;
+    }
