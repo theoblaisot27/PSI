@@ -1,103 +1,99 @@
-public void FloydWarshall()
+ public double[,] FloydWarshall()
+    {
+        int n = noeuds.Count;
+        double[,] dist = new double[n, n]; // Matrice de distances
+        int[,] next = new int[n, n]; // Matrice pour reconstruire le chemin
+
+        // Initialisation des matrices de distance et de prédécesseur
+        for (int i = 0; i < n; i++)
         {
-            int n = _noeuds.Count;
-
-            // Créer une matrice des distances
-            double[,] dist = new double[n + 1, n + 1];
-            int[,] pred = new int[n + 1, n + 1];
-
-            // Initialiser la matrice des distances et des prédécesseurs
-            foreach (var node in _noeuds.Keys)
+            for (int j = 0; j < n; j++)
             {
-                for (int i = 1; i <= n; i++)
+                if (i == j)
                 {
-                    dist[node, i] = double.MaxValue;
-                    pred[node, i] = -1;
+                    dist[i, j] = 0; // La distance d'un nœud à lui-même est 0
                 }
-                dist[node, node] = 0; // La distance d'un nœud à lui-même est 0
-            }
-
-            foreach (var arrete in _poids)
-            {
-                int u = arrete.Key.Item1;
-                int v = arrete.Key.Item2;
-                double poids = arrete.Value;
-                dist[u, v] = poids;
-                dist[v, u] = poids;
-                pred[u, v] = u;
-                pred[v, u] = v;
-            }
-
-            for (int k = 1; k <= n; k++)
-            {
-                for (int i = 1; i <= n; i++)
+                else
                 {
-                    for (int j = 1; j <= n; j++)
-                    {
-                        if (dist[i, j] > dist[i, k] + dist[k, j])
-                        {
-                            dist[i, j] = dist[i, k] + dist[k, j];
-                            pred[i, j] = pred[k, j];
-                        }
-                    }
+                    dist[i, j] = double.MaxValue; // Initialisation à l'infini
+                    next[i, j] = -1; // Aucun prédécesseur initialement
                 }
-            }
-
-            AfficherResultatsFloydWarshall(dist, pred);
-        }
-
-        private void AfficherResultatsFloydWarshall(double[,] dist, int[,] pred)
-        {
-            int n = _noeuds.Count;
-
-            Console.WriteLine("Matrice des plus courts chemins :");
-            for (int i = 1; i <= n; i++)
-            {
-                for (int j = 1; j <= n; j++)
-                {
-                    if (dist[i, j] == double.MaxValue)
-                    {
-                        Console.Write("INF ".PadLeft(8));
-                    }
-                    else
-                    {
-                        Console.Write(dist[i, j].ToString("F2").PadLeft(8));
-                    }
-                }
-                Console.WriteLine();
-            }
-
-            Console.WriteLine("\nChemin le plus court de 1 à 3 :");
-            int source = 1;
-            int destination = 3;
-            List<int> chemin = ReconstructPath(pred, source, destination);
-
-            foreach (int node in chemin)
-            {
-                Console.WriteLine($"Station {node}");
             }
         }
 
-        private List<int> ReconstructPath(int[,] pred, int source, int destination)
+        // Remplir la matrice avec les distances directes des arêtes
+        foreach (var lien in liens)
         {
-            List<int> path = new List<int>();
-            int currentNode = destination;
+            T n1 = lien.Noeud1.Donnees;
+            T n2 = lien.Noeud2.Donnees;
+            double weight = lien.Distance;
 
-            while (currentNode != source)
+            int i = GetNodeIndex(n1);
+            int j = GetNodeIndex(n2);
+
+            dist[i, j] = weight; // Distance directe
+            dist[j, i] = weight; // Distance directe dans l'autre direction (graphe non orienté)
+            next[i, j] = j; // Le prédécesseur de j depuis i est j
+            next[j, i] = i; // Le prédécesseur de i depuis j est i
+        }
+
+        // Application de l'algorithme de Floyd-Warshall
+        for (int k = 0; k < n; k++)
+        {
+            for (int i = 0; i < n; i++)
             {
-                if (currentNode == -1)
+                for (int j = 0; j < n; j++)
                 {
-                    Console.WriteLine("Aucun chemin trouvé.");
-                    return new List<int>(); // Retourne une liste vide si aucun chemin
+                    // Si un chemin passant par k est plus court, on met à jour la distance
+                    if (dist[i, j] > dist[i, k] + dist[k, j])
+                    {
+                        dist[i, j] = dist[i, k] + dist[k, j];
+                        next[i, j] = next[i, k]; // Le prédécesseur de j depuis i passe par k
+                    }
                 }
-
-                path.Add(currentNode);
-                currentNode = pred[source, currentNode];
             }
+        }
 
-            path.Add(source);
-            path.Reverse();
+        return dist; // Retourner la matrice des distances
+    }
+
+    // Méthode pour obtenir l'index du nœud dans la matrice
+    private int GetNodeIndex(T noeud)
+    {
+        int index = 0;
+        foreach (var kvp in noeuds)
+        {
+            if (EqualityComparer<T>.Default.Equals(kvp.Value.Donnees, noeud))
+            {
+                return index;
+            }
+            index++;
+        }
+        throw new Exception("Noeud introuvable");
+    }
+
+    // Méthode pour reconstruire le chemin entre deux nœuds
+    public List<T> ReconstructPath(int[,] next, T start, T end)
+    {
+        int startIndex = GetNodeIndex(start);
+        int endIndex = GetNodeIndex(end);
+        List<T> path = new List<T>();
+
+        if (next[startIndex, endIndex] == -1)
+        {
+            Console.WriteLine("Pas de chemin disponible.");
             return path;
         }
+
+        // Reconstruire le chemin
+        T current = start;
+        while (!EqualityComparer<T>.Default.Equals(current, end))
+        {
+            path.Add(current);
+            current = noeuds[GetNodeIndex(current)].Donnees; // Utiliser le tableau next pour se déplacer dans le chemin
+        }
+
+        path.Add(end); // Ajouter la destination
+        return path;
     }
 }
