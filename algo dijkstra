@@ -1,6 +1,5 @@
 public List<T> Dijkstra(T source, T destination)
     {
-        // Initialiser les distances de tous les nœuds à l'infini
         var distances = new Dictionary<T, double>();
         var predecessors = new Dictionary<T, T>();  // Pour retracer le chemin
         var priorityQueue = new SortedSet<T>(Comparer<T>.Create((x, y) => distances[x].CompareTo(distances[y])));
@@ -12,22 +11,18 @@ public List<T> Dijkstra(T source, T destination)
             priorityQueue.Add(noeud);
         }
 
-        // La distance du nœud source est 0
         distances[source] = 0;
 
         while (priorityQueue.Count > 0)
         {
-            // Extraire le nœud avec la distance la plus courte
             T currentNode = priorityQueue.Min;
             priorityQueue.Remove(currentNode);
 
-            // Si le nœud destination est atteint, on reconstruit le chemin
             if (EqualityComparer<T>.Default.Equals(currentNode, destination))
             {
                 return ReconstructPath(predecessors, destination);
             }
 
-            // Mettre à jour les voisins
             foreach (T voisin in listeAdjacence[currentNode])
             {
                 double weight = CalculerDistance(noeuds[currentNode], noeuds[voisin]); // Calculer la distance entre les nœuds voisins
@@ -38,7 +33,6 @@ public List<T> Dijkstra(T source, T destination)
                     distances[voisin] = alt;
                     predecessors[voisin] = currentNode;
 
-                    // Mettre à jour la file de priorité (en supprimant puis réajoutant le nœud avec la nouvelle distance)
                     priorityQueue.Remove(voisin);
                     priorityQueue.Add(voisin);
                 }
@@ -48,7 +42,6 @@ public List<T> Dijkstra(T source, T destination)
         return new List<T>(); // Aucun chemin trouvé
     }
 
-    // Méthode pour reconstruire le chemin à partir des prédécesseurs
     private List<T> ReconstructPath(Dictionary<T, T> predecessors, T destination)
     {
         var path = new List<T>();
