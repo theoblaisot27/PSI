@@ -1,7 +1,7 @@
 public List<T> Dijkstra(T source, T destination)
     {
         var distances = new Dictionary<T, double>();
-        var predecessors = new Dictionary<T, T>();  // Pour retracer le chemin
+        var predecessors = new Dictionary<T, T>();  
         var priorityQueue = new SortedSet<T>(Comparer<T>.Create((x, y) => distances[x].CompareTo(distances[y])));
         
         foreach (var noeud in noeuds.Keys)
@@ -25,7 +25,7 @@ public List<T> Dijkstra(T source, T destination)
 
             foreach (T voisin in listeAdjacence[currentNode])
             {
-                double weight = CalculerDistance(noeuds[currentNode], noeuds[voisin]); // Calculer la distance entre les nœuds voisins
+                double weight = CalculerDistance(noeuds[currentNode], noeuds[voisin]); 
                 double alt = distances[currentNode] + weight;
 
                 if (alt < distances[voisin])
