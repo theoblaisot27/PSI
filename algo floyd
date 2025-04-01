@@ -1,7 +1,7 @@
  public double[,] FloydWarshall()
     {
         int n = noeuds.Count;
-        double[,] dist = new double[n, n]; // Matrice de distances
+        double[,] dist = new double[n, n]; 
         int[,] next = new int[n, n]; // Matrice pour reconstruire le chemin
 
         for (int i = 0; i < n; i++)
@@ -10,12 +10,12 @@
             {
                 if (i == j)
                 {
-                    dist[i, j] = 0; // La distance d'un nœud à lui-même est 0
+                    dist[i, j] = 0; 
                 }
                 else
                 {
-                    dist[i, j] = double.MaxValue; // Initialisation à l'infini
-                    next[i, j] = -1; // Aucun prédécesseur initialement
+                    dist[i, j] = double.MaxValue; 
+                    next[i, j] = -1; 
                 }
             }
         }
@@ -29,10 +29,10 @@
             int i = GetNodeIndex(n1);
             int j = GetNodeIndex(n2);
 
-            dist[i, j] = weight; // Distance directe
-            dist[j, i] = weight; // Distance directe dans l'autre direction (graphe non orienté)
-            next[i, j] = j; // Le prédécesseur de j depuis i est j
-            next[j, i] = i; // Le prédécesseur de i depuis j est i
+            dist[i, j] = weight;
+            dist[j, i] = weight; 
+            next[i, j] = j; 
+            next[j, i] = i; 
         }
 
         for (int k = 0; k < n; k++)
