@@ -14,7 +14,7 @@ public List<T> BellmanFord(T source, T destination)
 
         distances[source] = 0;
 
-        for (int i = 1; i < noeuds.Count; i++) // Effectuer V - 1 itérations
+        for (int i = 1; i < noeuds.Count; i++) 
         {
             foreach (var lien in liens)
             {
@@ -45,20 +45,20 @@ public List<T> BellmanFord(T source, T destination)
             if (distances[n1] + weight < distances[n2])
             {
                 Console.WriteLine("Le graphe contient un cycle négatif");
-                return new List<T>(); // Retourne une liste vide si un cycle négatif est détecté
+                return new List<T>();
             }
 
             if (distances[n2] + weight < distances[n1])
             {
                 Console.WriteLine("Le graphe contient un cycle négatif");
-                return new List<T>(); // Retourne une liste vide si un cycle négatif est détecté
+                return new List<T>(); 
             }
         }
 
         if (distances[destination] == double.MaxValue)
         {
             Console.WriteLine("Aucun chemin trouvé vers la destination");
-            return new List<T>(); // Si la destination est inatteignable
+            return new List<T>(); 
         }
 
         T current = destination;
