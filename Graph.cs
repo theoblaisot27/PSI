@@ -58,16 +58,10 @@ namespace projet_algo_2
             noeuds = new Dictionary<T, Noeud<T>>();
             listeAdjacence = new Dictionary<T, List<T>>();
             liens = new List<Lien<T>>();
-            matriceAdjacence = new int[nombreNoeuds + 1, nombreNoeuds + 1];
 
             string fichier = "MetroParis(2)";
 
-            for (int i = 1; i <= nombreNoeuds; i++)
-            {
-                T noeudId = conversion(i.ToString()); 
-                noeuds.Add(noeudId, new Noeud<T>(noeudId));
-                listeAdjacence.Add(noeudId, new List<T>());
-            }
+            
             LireFichier(fichier, conversion);
         }
 
@@ -90,11 +84,16 @@ namespace projet_algo_2
                             string libelle = valeurs[2];
                             double longitude = double.Parse(valeurs[3]);
                             double latitude = double.Parse(valeurs[4]);
-                            Noeud<T> noeuds = new Noeud<T>(id, libelle, longitude, latitude, noeudId);
-                           
+                            T noeudId = conversion(id.ToString());
+                            Noeud<T> noeuds =new Noeud<T>(id, libelle, longitude, latitude,noeudId);
+                            if (!noeuds.ContainsKey(noeudId))
+                            {
+                                noeuds.Add(noeudId, noeud);
+                            }
 
 
-                           
+
+
                         }
                     }
                 }
