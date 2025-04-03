@@ -60,11 +60,11 @@ namespace projet_algo_2
             liens = new List<Lien<T>>();
             matriceAdjacence = new int[nombreNoeuds + 1, nombreNoeuds + 1];
 
-            string fichier = "soc-karate.mtx";
+            string fichier = "MetroParis(2)";
 
             for (int i = 1; i <= nombreNoeuds; i++)
             {
-                T noeudId = conversion(i.ToString()); // Convertit `i` en `T`
+                T noeudId = conversion(i.ToString()); 
                 noeuds.Add(noeudId, new Noeud<T>(noeudId));
                 listeAdjacence.Add(noeudId, new List<T>());
             }
@@ -77,21 +77,24 @@ namespace projet_algo_2
             {
                 using (StreamReader flux = new StreamReader(fichier))
                 {
-                    for (int i = 0; i < 23; i++)
-                        flux.ReadLine(); // Ignorer les premières lignes
 
-                    for (int i = 0; i < nombreLiens; i++)
+                    string ligne= flux.ReadLine();
+
+                   while(ligne!=null)
                     {
-                        string ligne = flux.ReadLine();
+                       
                         if (!string.IsNullOrWhiteSpace(ligne))
                         {
-                            string[] valeurs = ligne.Split(' ');
+                            string[] valeurs = ligne.Split(';');
+                            int id = int.Parse(valeurs[0]);
+                            string libelle = valeurs[1];
+                            double longitude = double.Parse(valeurs[2]);
+                            double latitude = double.Parse(valeurs[3]);
+                            Noeud<T> noeuds = new Noeud<T>(id, libelle, longitude, latitude, noeudId);
+                           
 
-                            // Conversion dynamique des valeurs en `T`
-                            T noeud1 = conversion(valeurs[0]);
-                            T noeud2 = conversion(valeurs[1]);
 
-                            AjouterLien(noeud1, noeud2);
+                           
                         }
                     }
                 }
