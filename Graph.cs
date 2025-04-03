@@ -85,10 +85,10 @@ namespace projet_algo_2
                             double longitude = double.Parse(valeurs[3]);
                             double latitude = double.Parse(valeurs[4]);
                             T noeudId = conversion(id.ToString());
-                            Noeud<T> noeuds =new Noeud<T>(id, libelle, longitude, latitude,noeudId);
-                            if (!noeuds.ContainsKey(noeudId))
+                            Noeud<T> noeud =new Noeud<T>(id, libelle, longitude, latitude,noeudId);
+                            if (!this.noeuds.ContainsKey(noeudId))
                             {
-                                noeuds.Add(noeudId, noeud);
+                                this.noeuds.Add(noeudId, noeud);
                             }
 
 
@@ -106,12 +106,13 @@ namespace projet_algo_2
         /// <summary>
         /// Ajoute un nœud au graphe.
         /// </summary>
-        public void AjouterNoeud(T id)
+        public void AjouterNoeud(int id, string libelle, double longitude, double latitude, T donnees)
         {
-            if (!noeuds.ContainsKey(id))
+            if (!noeuds.ContainsKey(donnees))
             {
-                noeuds[id] = new Noeud<T>(id);
-                listeAdjacence[id] = new List<T>();
+                Noeud<T> nouveauNoeud = new Noeud<T>(id, libelle, longitude, latitude, donnees);
+                this.noeuds.Add(donnees, nouveauNoeud);
+                listeAdjacence[donnees] = new List<T>();
             }
         }
 
