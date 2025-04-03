@@ -87,9 +87,9 @@ namespace projet_algo_2
                         {
                             string[] valeurs = ligne.Split(';');
                             int id = int.Parse(valeurs[0]);
-                            string libelle = valeurs[1];
-                            double longitude = double.Parse(valeurs[2]);
-                            double latitude = double.Parse(valeurs[3]);
+                            string libelle = valeurs[2];
+                            double longitude = double.Parse(valeurs[3]);
+                            double latitude = double.Parse(valeurs[4]);
                             Noeud<T> noeuds = new Noeud<T>(id, libelle, longitude, latitude, noeudId);
                            
 
