@@ -90,7 +90,7 @@ namespace Projet_PSI
                             double longitude = double.Parse(valeurs[3]);
                             double latitude = double.Parse(valeurs[4]);
                             T noeudId = conversion(id.ToString());
-                            Noeud<T> noeud = new Noeud<T>(id, libelle, longitude, latitude, noeudId );
+                            Noeud<T> noeud = new Noeud<T>(id, libelle, longitude, latitude, noeudId);
                             if (!this.noeuds.ContainsKey(noeudId))
                             {
                                 this.noeuds.Add(noeudId, noeud);
@@ -109,7 +109,7 @@ namespace Projet_PSI
             }
         }
 
-        public void LireFichierArc(string fichier, Func <string, T> conversion)
+        public void LireFichierArc(string fichier, Func<string, T> conversion)
         {
             try
             {
@@ -143,7 +143,7 @@ namespace Projet_PSI
 
 
                         }
-                        ligne = flux.ReadLine() ;
+                        ligne = flux.ReadLine();
                     }
                 }
             }
@@ -190,18 +190,18 @@ namespace Projet_PSI
             Console.WriteLine("Liste d'adjacence :");
             foreach (var kvp in listeAdjacence)
             {
-                string lib ="";
+                string lib = "";
                 List<T> libe = new List<T>();
-                
+
                 foreach (KeyValuePair<T, Noeud<T>> n in noeuds)
                 {
                     if (n.Key.Equals(kvp.Key))
                     {
                         lib = n.Value.Libelle;
                     }
-                                       
+
                 }
-                Console.Write( lib + " -> ");
+                Console.Write(lib + " -> ");
                 for (int i = 0; i < kvp.Value.Count; i++)
                 {
                     foreach (KeyValuePair<T, Noeud<T>> n in noeuds)
@@ -211,10 +211,10 @@ namespace Projet_PSI
                             Console.Write(n.Value.Libelle + " ; ");
                         }
                     }
-                    
+
 
                 }
-                
+
                 Console.WriteLine();
 
             }
@@ -289,231 +289,243 @@ namespace Projet_PSI
             }
             Console.WriteLine();
         }
-        public List<T> Dijkstra(T source, T destination)
+
+
+
+        public List<T> Dijkstra(T depart, T arrivee)
         {
             var distances = new Dictionary<T, double>();
-            var predecessors = new Dictionary<T, T>();
-            var priorityQueue = new SortedSet<T>(Comparer<T>.Create((x, y) => distances[x].CompareTo(distances[y])));
+            var precedent = new Dictionary<T, T>();
+            var nonVisites = new HashSet<T>();
 
+            // Initialisation
             foreach (var noeud in noeuds.Keys)
             {
-                distances[noeud] = double.MaxValue;
-                predecessors[noeud] = default(T);
-                priorityQueue.Add(noeud);
+                distances[noeud] = double.PositiveInfinity;
+                nonVisites.Add(noeud);
             }
 
-            distances[source] = 0;
+            distances[depart] = 0;
 
-            while (priorityQueue.Count > 0)
+            while (nonVisites.Count > 0)
             {
-                T currentNode = priorityQueue.Min;
-                priorityQueue.Remove(currentNode);
+                // Noeud avec la plus petite distance non encore visité
+                T courant = nonVisites.OrderBy(n => distances[n]).First();
+                nonVisites.Remove(courant);
 
-                if (EqualityComparer<T>.Default.Equals(currentNode, destination))
+                if (courant.Equals(arrivee))
+                    break;
+
+                foreach (var voisin in listeAdjacence[courant])
                 {
-                    return ReconstructPath(predecessors, destination);
-                }
+                    if (!nonVisites.Contains(voisin)) continue;
 
-                foreach (T voisin in listeAdjacence[currentNode])
-                {
-                    double weight = Lien<T>.CalculerDistance(noeuds[currentNode], noeuds[voisin]);
-                    double alt = distances[currentNode] + weight;
+                    // Trouver le lien entre le noeud courant et son voisin
+                    var lien = liens.Find(l =>
+                        (l.Noeud1.Donnees.Equals(courant) && l.Noeud2.Donnees.Equals(voisin)) ||
+                        (l.Noeud2.Donnees.Equals(courant) && l.Noeud1.Donnees.Equals(voisin)));
 
-                    if (alt < distances[voisin])
+                    double distanceLien = lien != null ? lien.Distance : double.PositiveInfinity;
+
+                    double nouvelleDistance = distances[courant] + distanceLien;
+
+                    if (nouvelleDistance < distances[voisin])
                     {
-                        distances[voisin] = alt;
-                        predecessors[voisin] = currentNode;
-
-                        priorityQueue.Remove(voisin);
-                        priorityQueue.Add(voisin);
+                        distances[voisin] = nouvelleDistance;
+                        precedent[voisin] = courant;
                     }
                 }
             }
 
-            return new List<T>();
-        }
+            // Reconstruction du chemin
+            List<T> chemin = new List<T>();
+            T actuel = arrivee;
 
-        private List<T> ReconstructPath(Dictionary<T, T> predecessors, T destination)
-        {
-            var path = new List<T>();
-            T current = destination;
-
-            while (!EqualityComparer<T>.Default.Equals(current, default(T)))
+            while (!actuel.Equals(depart))
             {
-                path.Insert(0, current);
-                current = predecessors[current];
+                if (!precedent.ContainsKey(actuel))
+                {
+                    Console.WriteLine("Aucun chemin trouvé.");
+                    return new List<T>();
+                }
+
+                chemin.Insert(0, actuel);
+                actuel = precedent[actuel];
             }
 
-            return path;
+            chemin.Insert(0, depart);
+            return chemin;
+        }
+
+
+
+        public void AfficherCheminAvecLibelles(List<T> chemin)
+        {
+            Console.WriteLine("Chemin avec libellés :");
+
+            foreach (T id in chemin)
+            {
+                if (noeuds.TryGetValue(id, out Noeud<T> noeud))
+                {
+                    Console.Write(noeud.Libelle);
+                }
+                else
+                {
+                    Console.Write($"[Inconnu: {id}]");
+                }
+
+                if (!id.Equals(chemin.Last()))
+                {
+                    Console.Write(" -> ");
+                }
+            }
+
+            Console.WriteLine();
         }
 
         public List<T> BellmanFord(T source, T destination)
         {
-
             var distances = new Dictionary<T, double>();
-            var predecessors = new Dictionary<T, T>();
-            var path = new List<T>();
+            var precedent = new Dictionary<T, T>();
 
-
+            // Initialisation
             foreach (var noeud in noeuds.Keys)
             {
-                distances[noeud] = double.MaxValue;
-                predecessors[noeud] = default(T);
+                distances[noeud] = double.PositiveInfinity;
             }
-
             distances[source] = 0;
 
-            for (int i = 1; i < noeuds.Count; i++)
+            int n = noeuds.Count;
+
+            // Détente des arêtes
+            for (int i = 0; i < n - 1; i++)
             {
                 foreach (var lien in liens)
                 {
-                    T n1 = lien.Noeud1.Donnees;
-                    T n2 = lien.Noeud2.Donnees;
-                    double weight = lien.Distance;
+                    T u = lien.Noeud1.Donnees;
+                    T v = lien.Noeud2.Donnees;
+                    double poids = lien.Distance;
 
-                    if (distances[n1] + weight < distances[n2])
+                    if (distances[u] + poids < distances[v])
                     {
-                        distances[n2] = distances[n1] + weight;
-                        predecessors[n2] = n1;
+                        distances[v] = distances[u] + poids;
+                        precedent[v] = u;
                     }
 
-                    if (distances[n2] + weight < distances[n1])
+                    // Comme c'est non orienté
+                    if (distances[v] + poids < distances[u])
                     {
-                        distances[n1] = distances[n2] + weight;
-                        predecessors[n1] = n2;
+                        distances[u] = distances[v] + poids;
+                        precedent[u] = v;
                     }
                 }
             }
 
+            // Vérification des cycles négatifs (pas obligatoire ici sauf si les poids peuvent être négatifs)
             foreach (var lien in liens)
             {
-                T n1 = lien.Noeud1.Donnees;
-                T n2 = lien.Noeud2.Donnees;
-                double weight = lien.Distance;
-
-                if (distances[n1] + weight < distances[n2])
+                T u = lien.Noeud1.Donnees;
+                T v = lien.Noeud2.Donnees;
+                if (distances[u] + lien.Distance < distances[v])
                 {
-                    Console.WriteLine("Le graphe contient un cycle négatif");
-                    return new List<T>();
-                }
-
-                if (distances[n2] + weight < distances[n1])
-                {
-                    Console.WriteLine("Le graphe contient un cycle négatif");
+                    Console.WriteLine("Le graphe contient un cycle de poids négatif.");
                     return new List<T>();
                 }
             }
 
-            if (distances[destination] == double.MaxValue)
+            // Reconstruction du chemin
+            List<T> chemin = new List<T>();
+            T courant = destination;
+
+            while (!courant.Equals(source))
             {
-                Console.WriteLine("Aucun chemin trouvé vers la destination");
-                return new List<T>();
+                if (!precedent.ContainsKey(courant))
+                {
+                    Console.WriteLine("Aucun chemin trouvé.");
+                    return new List<T>();
+                }
+                chemin.Insert(0, courant);
+                courant = precedent[courant];
             }
 
-            T current = destination;
-            while (!EqualityComparer<T>.Default.Equals(current, default(T)))
-            {
-                path.Insert(0, current);
-                current = predecessors[current];
-            }
-
-            return path;
+            chemin.Insert(0, source);
+            return chemin;
         }
 
-        public double[,] FloydWarshall()
-        {
-            int n = noeuds.Count;
-            double[,] dist = new double[n, n];
-            int[,] next = new int[n, n];
 
-            for (int i = 0; i < n; i++)
+        public Dictionary<(T, T), List<T>> FloydWarshall()
+        {
+            var sommets = noeuds.Keys.ToList();
+            int n = sommets.Count;
+
+            var distance = new Dictionary<(T, T), double>();
+            var suivant = new Dictionary<(T, T), T>();
+
+            // Initialisation
+            foreach (T i in sommets)
             {
-                for (int j = 0; j < n; j++)
+                foreach (T j in sommets)
                 {
-                    if (i == j)
+                    if (i.Equals(j))
                     {
-                        dist[i, j] = 0;
+                        distance[(i, j)] = 0;
+                    }
+                    else if (listeAdjacence[i].Contains(j))
+                    {
+                        var lien = liens.Find(l =>
+                            (l.Noeud1.Donnees.Equals(i) && l.Noeud2.Donnees.Equals(j)) ||
+                            (l.Noeud2.Donnees.Equals(i) && l.Noeud1.Donnees.Equals(j)));
+
+                        distance[(i, j)] = lien?.Distance ?? double.PositiveInfinity;
+                        suivant[(i, j)] = j;
                     }
                     else
                     {
-                        dist[i, j] = double.MaxValue;
-                        next[i, j] = -1;
+                        distance[(i, j)] = double.PositiveInfinity;
                     }
                 }
             }
 
-            foreach (var lien in liens)
+            // Algorithme de Floyd-Warshall
+            foreach (T k in sommets)
             {
-                T n1 = lien.Noeud1.Donnees;
-                T n2 = lien.Noeud2.Donnees;
-                double weight = lien.Distance;
-
-                int i = GetNodeIndex(n1);
-                int j = GetNodeIndex(n2);
-
-                dist[i, j] = weight;
-                dist[j, i] = weight;
-                next[i, j] = j;
-                next[j, i] = i;
-            }
-
-            for (int k = 0; k < n; k++)
-            {
-                for (int i = 0; i < n; i++)
+                foreach (T i in sommets)
                 {
-                    for (int j = 0; j < n; j++)
+                    foreach (T j in sommets)
                     {
-
-                        if (dist[i, j] > dist[i, k] + dist[k, j])
+                        if (distance[(i, k)] + distance[(k, j)] < distance[(i, j)])
                         {
-                            dist[i, j] = dist[i, k] + dist[k, j];
-                            next[i, j] = next[i, k];
+                            distance[(i, j)] = distance[(i, k)] + distance[(k, j)];
+                            suivant[(i, j)] = suivant[(i, k)];
                         }
                     }
                 }
             }
 
-            return dist;
-        }
-
-        private int GetNodeIndex(T noeud)
-        {
-            int index = 0;
-            foreach (var kvp in noeuds)
+            // Reconstruire les chemins
+            var chemins = new Dictionary<(T, T), List<T>>();
+            foreach (T i in sommets)
             {
-                if (EqualityComparer<T>.Default.Equals(kvp.Value.Donnees, noeud))
+                foreach (T j in sommets)
                 {
-                    return index;
+                    if (distance[(i, j)] == double.PositiveInfinity || i.Equals(j)) continue;
+
+                    List<T> chemin = new List<T> { i };
+                    T courant = i;
+                    while (!courant.Equals(j))
+                    {
+                        courant = suivant[(courant, j)];
+                        chemin.Add(courant);
+                    }
+                    chemins[(i, j)] = chemin;
                 }
-                index++;
             }
-            throw new Exception("Noeud introuvable");
+
+            return chemins;
         }
 
-        public List<T> ReconstructPath(int[,] next, T start, T end)
-        {
-            int startIndex = GetNodeIndex(start);
-            int endIndex = GetNodeIndex(end);
-            List<T> path = new List<T>();
 
-            if (next[startIndex, endIndex] == -1)
-            {
-                Console.WriteLine("Pas de chemin disponible.");
-                return path;
-            }
 
-            T current = start;
-            while (!EqualityComparer<T>.Default.Equals(current, end))
-            {
-                int currentIndex = GetNodeIndex(current);
-                Noeud<T> currentNode = noeuds.Values.ElementAt(currentIndex);
 
-                current = currentNode.Donnees;
-            }
-
-            path.Add(end);
-            return path;
-        }
     }
-
 }
