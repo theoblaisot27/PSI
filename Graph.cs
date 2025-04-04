@@ -1,6 +1,6 @@
 using Projet_PSI;
 
-namespace projet_algo_2
+namespace Projet_PSI
 {
     internal class Graph<T>
     {
@@ -53,30 +53,37 @@ namespace projet_algo_2
         /// <summary>
         /// Constructeur de la classe Graph. Initialise les structures de données.
         /// </summary>
-        public Graph(Func<string, T> conversion)
+        public Graph(Func<string, T> conversion, string fichierNoeud, string fichierArc)
         {
             noeuds = new Dictionary<T, Noeud<T>>();
             listeAdjacence = new Dictionary<T, List<T>>();
             liens = new List<Lien<T>>();
 
-            string fichier = "MetroParis(2)";
 
-            
-            LireFichier(fichier, conversion);
+
+            LireFichierNoeud(fichierNoeud, conversion);
+            LireFichierArc(fichierArc, conversion);
         }
 
-        public void LireFichier(string fichier, Func<string, T> conversion)
+        /// <summary>Permet de lire le fichier Noeud
+        /// On utilise un streamReader pour lire chaque ligne du fichier excel un utilisant un tableau 
+        /// de string pour chaque case du tableau pour construire chaque noeud.
+        /// </summary>
+        /// <param name="fichier"></param> Nom du fichier
+        /// <param name="conversion"></param>Convertion pour le type générique T
+        public void LireFichierNoeud(string fichier, Func<string, T> conversion)
         {
             try
             {
                 using (StreamReader flux = new StreamReader(fichier))
                 {
 
-                    string ligne= flux.ReadLine();
+                    string ligne = flux.ReadLine();
+                    ligne = flux.ReadLine();
 
-                   while(ligne!=null)
+                    while (ligne != null)
                     {
-                       
+
                         if (!string.IsNullOrWhiteSpace(ligne))
                         {
                             string[] valeurs = ligne.Split(';');
@@ -85,16 +92,60 @@ namespace projet_algo_2
                             double longitude = double.Parse(valeurs[3]);
                             double latitude = double.Parse(valeurs[4]);
                             T noeudId = conversion(id.ToString());
-                            Noeud<T> noeud =new Noeud<T>(id, libelle, longitude, latitude,noeudId);
+                            Noeud<T> noeud = new Noeud<T>(id, libelle, longitude, latitude, noeudId );
                             if (!this.noeuds.ContainsKey(noeudId))
                             {
                                 this.noeuds.Add(noeudId, noeud);
+                            }
+                            ligne = flux.ReadLine();
+
+
+
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("1Erreur lors de la lecture du fichier : " + e.Message);
+            }
+        }
+
+        public void LireFichierArc(string fichier, Func <string, T> conversion)
+        {
+            try
+            {
+                using (StreamReader flux = new StreamReader(fichier))
+                {
+
+                    string ligne = flux.ReadLine();
+                    ligne = flux.ReadLine();
+                    while (ligne != null)
+                    {
+
+                        if (!string.IsNullOrWhiteSpace(ligne))
+                        {
+                            string[] valeurs = ligne.Split(';');
+                            T n1 = conversion(valeurs[0]);
+                            string libelle = valeurs[1];
+                            T n2 = conversion(valeurs[2]);
+                            T n3 = conversion(valeurs[3]);
+                            if (!n2.Equals(0))
+                            {
+                                AjouterLien(n1, n2);
+                            }
+                            if (!n3.Equals(0))
+                            {
+                                AjouterLien(n1, n3);
                             }
 
 
 
 
+
+
                         }
+                        ligne = flux.ReadLine() ;
                     }
                 }
             }
@@ -349,7 +400,7 @@ namespace projet_algo_2
         {
             int n = noeuds.Count;
             double[,] dist = new double[n, n];
-            int[,] next = new int[n, n]; 
+            int[,] next = new int[n, n];
 
             for (int i = 0; i < n; i++)
             {
@@ -388,11 +439,11 @@ namespace projet_algo_2
                 {
                     for (int j = 0; j < n; j++)
                     {
-                       
+
                         if (dist[i, j] > dist[i, k] + dist[k, j])
                         {
                             dist[i, j] = dist[i, k] + dist[k, j];
-                            next[i, j] = next[i, k]; 
+                            next[i, j] = next[i, k];
                         }
                     }
                 }
@@ -430,8 +481,8 @@ namespace projet_algo_2
             T current = start;
             while (!EqualityComparer<T>.Default.Equals(current, end))
             {
-                int currentIndex = GetNodeIndex(current);  
-                Noeud<T> currentNode = noeuds.Values.ElementAt(currentIndex); 
+                int currentIndex = GetNodeIndex(current);
+                Noeud<T> currentNode = noeuds.Values.ElementAt(currentIndex);
 
                 current = currentNode.Donnees;
             }
