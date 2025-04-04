@@ -1,5 +1,3 @@
-﻿using projet_algo_2;
-
 namespace Projet_PSI
 {
     internal class Program
@@ -13,6 +11,11 @@ namespace Projet_PSI
             Graph<int> g = new Graph<int>(s => int.Parse(s), fichier, fichier2);
             g.AfficherListeAdjacence();
 
+            List<int> chemin = g.Dijkstra(54, 126);
+
+            Console.WriteLine("Chemin le plus court : " + string.Join(" -> ", chemin));
+
+            g.AfficherCheminAvecLibelles(chemin);
 
         }
     }
