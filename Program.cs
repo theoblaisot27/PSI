@@ -6,18 +6,12 @@ namespace Projet_PSI
     {
         static void Main(string[] args)
         {
-            string fichier = "Association-soc-karate.zip";
+            string fichier = "MetroParisNoeud.csv";
 
+            string fichier2 = "MetroParisArc.csv";
 
-
-
-
-
-
-
-
-
-
+            Graph<int> g = new Graph<int>(s => int.Parse(s), fichier, fichier2);
+            g.AfficherListeAdjacence();
 
 
         }
