@@ -1,5 +1,3 @@
-using Projet_PSI;
-
 namespace Projet_PSI
 {
     internal class Graph<T>
@@ -188,11 +186,37 @@ namespace Projet_PSI
         /// </summary>
         public void AfficherListeAdjacence()
         {
+            int k = 0;
             Console.WriteLine("Liste d'adjacence :");
             foreach (var kvp in listeAdjacence)
             {
-                Console.Write(kvp.Key + " -> ");
-                Console.WriteLine(string.Join(", ", kvp.Value));
+                string lib ="";
+                List<T> libe = new List<T>();
+                
+                foreach (KeyValuePair<T, Noeud<T>> n in noeuds)
+                {
+                    if (n.Key.Equals(kvp.Key))
+                    {
+                        lib = n.Value.Libelle;
+                    }
+                                       
+                }
+                Console.Write( lib + " -> ");
+                for (int i = 0; i < kvp.Value.Count; i++)
+                {
+                    foreach (KeyValuePair<T, Noeud<T>> n in noeuds)
+                    {
+                        if (n.Value.Id.Equals(kvp.Value[i]))
+                        {
+                            Console.Write(n.Value.Libelle + " ; ");
+                        }
+                    }
+                    
+
+                }
+                
+                Console.WriteLine();
+
             }
         }
 
@@ -493,8 +517,3 @@ namespace Projet_PSI
     }
 
 }
-
-
-
-
-
